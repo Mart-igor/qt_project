@@ -1,10 +1,13 @@
 import sys
+import os
 import json
 from PySide6.QtWidgets import QApplication, QMainWindow, QButtonGroup
 from PySide6.QtCore import QRect, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QIcon
 from ui.ui_station import Ui_MainWindow
 from PySide6 import QtCore
+
+from Function import AppFunction
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -28,6 +31,20 @@ class MainWindow(QMainWindow):
 
 
         self.ui.menu_btn.clicked.connect(lambda:self.slide_left_menu())
+
+        
+        self.ui.stackedWidget.setCurrentWidget(self.ui.settings_page)
+        # Подключаем кнопки к методам
+        self.ui.home_btn.clicked.connect(self.show_home_page)
+        self.ui.reports_btn.clicked.connect(self.show_report_page)
+        self.ui.settings_btn.clicked.connect(self.show_settings_page)
+
+
+        dbFolder = os.path.abspath(os.path.join(os.path.dirname(__file__), 'DB/s.db'))
+        AppFunction.main(dbFolder)
+        # AppFunction.displayUsers(self, AppFunction.getAllUsers(dbFolder))
+        # self.ui.add_user_btn.clicked.connect(lambda: AppFunction.addUser(self, dbFolder))
+
 
     def slide_left_menu(self):
         width = self.ui.left_menu.width()
@@ -54,7 +71,7 @@ class MainWindow(QMainWindow):
         self.animation_min.start()
         self.animation_max.start()
 
-
+        
     def load_styles(self, style_file):
         with open(style_file, 'r') as f:
             return json.load(f)
@@ -84,6 +101,15 @@ class MainWindow(QMainWindow):
             btn.setStyleSheet(not_active_style)
         button.setStyleSheet(active_style)  
 
+
+    def show_home_page(self):
+        self.ui.stackedWidget.setCurrentIndex(0)  # Показать первую страницу
+
+    def show_report_page(self):
+        self.ui.stackedWidget.setCurrentIndex(1)  # Показать вторую страницу
+
+    def show_settings_page(self):
+        self.ui.stackedWidget.setCurrentIndex(5)  # Показать страницу настроек
 
 
   

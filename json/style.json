@@ -27,9 +27,7 @@
         "border-left": "1px solid #cc5bce",
         "font-weight": "bold"
     },
-    "#main_content": {
-        "background-color": "white"
-    },
+    
     "QPushButtonGroup": 
         {
             "Buttons": [
