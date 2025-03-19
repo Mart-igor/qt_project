@@ -4,10 +4,16 @@ import json
 from PySide6.QtWidgets import QApplication, QMainWindow, QButtonGroup
 from PySide6.QtCore import QRect, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QIcon
-from ui.ui_station import Ui_MainWindow
+from ui.ui_station_add_file import Ui_MainWindow
 from PySide6 import QtCore
 
 from Function import AppFunction
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+from PySide6.QtWidgets import QFileDialog,QTableWidgetItem,  QTableWidget, QVBoxLayout, QWidget, QLabel
+import pandas as pd
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -32,6 +38,14 @@ class MainWindow(QMainWindow):
 
         self.ui.menu_btn.clicked.connect(lambda:self.slide_left_menu())
 
+        # ---------------------------------------------------------------------------------------------------------------------------------------------------
+        self.ui.pushButton.clicked.connect(self.open_file_dialog)
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+        # self.ui.pushback.clicked.connect(lambda:self.slide_right_menu())
+
         
         self.ui.stackedWidget.setCurrentWidget(self.ui.settings_page)
         # Подключаем кнопки к методам
@@ -44,6 +58,30 @@ class MainWindow(QMainWindow):
         AppFunction.main(dbFolder)
         # AppFunction.displayUsers(self, AppFunction.getAllUsers(dbFolder))
         # self.ui.add_user_btn.clicked.connect(lambda: AppFunction.addUser(self, dbFolder))
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+    def open_file_dialog(self):
+        file_name, _ = QFileDialog.getOpenFileName(self, "Open File", "", "All Files (*);;Text Files (*.txt)")
+        if not file_name:
+            return 
+        self.ui.label_10.setText(f"Selected file: {file_name}")
+
+        # Чтение CSV-файла с помощью pandas
+        df = pd.read_csv(file_name)
+
+        # Отображение данных в таблице
+        self.ui.tableWidget.setRowCount(df.shape[0])  # Количество строк
+        self.ui.tableWidget.setColumnCount(df.shape[1])  # Количество столбцов
+        self.ui.tableWidget.setHorizontalHeaderLabels(df.columns)  # Заголовки столбцов
+
+        # Заполнение таблицы данными
+        for i in range(df.shape[0]):
+            for j in range(df.shape[1]):
+                self.ui.tableWidget.setItem(i, j, QTableWidgetItem(str(df.iat[i, j])))
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 
 
     def slide_left_menu(self):
@@ -62,6 +100,32 @@ class MainWindow(QMainWindow):
 
         # Создаем анимацию для maximumWidth
         self.animation_max = QPropertyAnimation(self.ui.left_menu, b"maximumWidth")
+        self.animation_max.setDuration(250)
+        self.animation_max.setStartValue(width)
+        self.animation_max.setEndValue(new_width)
+        self.animation_max.setEasingCurve(QtCore.QEasingCurve.InOutQuart)
+
+        # Запускаем анимации последовательно
+        self.animation_min.start()
+        self.animation_max.start()
+
+        
+    def slide_right_menu(self):
+        width = self.ui.right_menu.width()
+        if width == 0:
+            new_width = 200
+        else:
+            new_width = 0
+
+        # Создаем анимацию для minimumWidth
+        self.animation_min = QPropertyAnimation(self.ui.right_menu, b"minimumWidth")
+        self.animation_min.setDuration(250)
+        self.animation_min.setStartValue(width)
+        self.animation_min.setEndValue(new_width)
+        self.animation_min.setEasingCurve(QtCore.QEasingCurve.InOutQuart)
+
+        # Создаем анимацию для maximumWidth
+        self.animation_max = QPropertyAnimation(self.ui.right_menu, b"maximumWidth")
         self.animation_max.setDuration(250)
         self.animation_max.setStartValue(width)
         self.animation_max.setEndValue(new_width)
